@@ -1,0 +1,28 @@
+[package]
+name = "pinocchio-starter"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[dev-dependencies]
+mollusk-svm = "0.1.4"
+solana-sdk = "2.2.2"
+
+[features]
+logging = []
+test-sbf = []
+no-entrypoint = []
+
+[dependencies]
+pinocchio = "0.8.1"
+pinocchio-log = "0.4.0"
+pinocchio-pubkey = "0.2.4"
+pinocchio-system = "0.2.3"
+
+[package.metadata.solana]
+pubkey = "RSC35cbUwspG38apwCszUEu6hps5t9UmGRt8P3oVLyD"
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
