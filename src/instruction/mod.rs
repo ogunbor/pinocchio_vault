@@ -1,10 +1,10 @@
 use pinocchio::program_error::ProgramError;
 
-pub mod initialize_state;
-pub mod update_state;
+pub mod initialize_mystate;
+pub mod update_mystate;
 
-pub use initialize_state::*;
-pub use update_state::*;
+pub use initialize_mystate::*;
+pub use update_mystate::*;
 
 #[repr(u8)]
 pub enum MyProgramInstrution {

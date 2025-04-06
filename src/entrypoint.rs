@@ -1,16 +1,16 @@
-use pinocchio::{
-    ProgramResult, account_info::AccountInfo, default_panic_handler, no_allocator,
-    program_entrypoint, program_error::ProgramError, pubkey::Pubkey,
-};
-
 use crate::instruction::{self, MyProgramInstrution};
+use pinocchio::{
+    account_info::AccountInfo, no_allocator, nostd_panic_handler, program_entrypoint,
+    program_error::ProgramError, pubkey::Pubkey, ProgramResult,
+};
+use pinocchio_log::log;
 
 // This is the entrypoint for the program.
 program_entrypoint!(process_instruction);
-// Do not allocate memory.
+//Do not allocate memory.
 no_allocator!();
-// Use the default panic handler.
-default_panic_handler!();
+// Use the no_std panic handler.
+nostd_panic_handler!();
 
 #[inline(always)]
 fn process_instruction(
@@ -24,9 +24,11 @@ fn process_instruction(
 
     match MyProgramInstrution::try_from(ix_disc)? {
         MyProgramInstrution::InitializeState => {
+            log!("Instruction: InitializeState");
             instruction::process_initilaize_state(accounts, instruction_data)
         }
         MyProgramInstrution::UpdateState => {
+            log!("Instruction: UpdateState");
             instruction::process_update_state(accounts, instruction_data)
         }
     }
