@@ -1,6 +1,6 @@
 # Solana Pinocchio Starter
 
-## Steps to start (Please use wsl or linux for smooth devex
+## Steps to start (Please use wsl or linux for smooth devex)
 
 ### 1. clone the repo
 
