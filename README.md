@@ -1,8 +1,6 @@
 # Solana Pinocchio Starter
 
-### This is a solana native starter project with batteries included
-
-## Steps to start (Please use wsl or linux for smooth devux)
+## Steps to start (Please use wsl or linux for smooth devex
 
 ### 1. clone the repo
 
