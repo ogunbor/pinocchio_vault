@@ -25,7 +25,7 @@ git clone git@github.com:Nagaprasadvr/solana-pinocchio-starter.git
 
   - [state](src/state/) - all account states are defined here
 
-    - [utils.rs][src/state/utils.rs] - utils for state ( load_acc , load_mut_acc, etc)
+    - [utils.rs](src/state/utils.rs) - utils for state which provide serialization and deserialization helper fns( load_acc , load_mut_acc, etc)
 
   - [tests](src/tests/) - all tests are defined here
 
