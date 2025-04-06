@@ -69,6 +69,9 @@ impl MyState {
 
     pub fn update(&mut self, ix_data: &UpdateMyStateIxData) -> ProgramResult {
         self.data = ix_data.data;
+        if self.state != State::Updated {
+            self.state = State::Updated;
+        }
         self.update_count += 1;
 
         Ok(())
