@@ -29,9 +29,8 @@ git clone git@github.com:Nagaprasadvr/solana-pinocchio-starter.git
 
   - [tests](src/tests/) - all tests are defined here
 
-    - **Note:** we are using mollusk-svm for local testing , its a lightweight solana testing framework where
-      we can run the tests in a local environment without the need of a full solana cluster and also load any program
-    - [elfs](src/tests/elfs/) - compiled solana elfs can be added here and loaded while testing
+    - **Note:** we are using mollusk-svm - a lightweight solana testing framework for running tests in a local environment without the need of a full solana cluster
+    - [elfs](src/tests/elfs/) - compiled solana elfs can be added here and loaded to mollusk while testing
     - [mod.rs](src/tests/mod.rs) - has the tests for the program but we can split the tests into multiple files
 
   - [error.rs](program/src/error.rs) - program errors are listed here
@@ -42,7 +41,7 @@ git clone git@github.com:Nagaprasadvr/solana-pinocchio-starter.git
 cargo build-sbf
 ```
 
-- After build is successful get the program pubkey using and replace with the pinocchio_pubkey::declare_id!(...)
+- After build is successful get the program pubkey and replace with the pinocchio_pubkey::declare_id!(...)
 
 ```bash
 solana address -k target/deploy/solana_pinocchio_starter-keypair.json
