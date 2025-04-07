@@ -27,13 +27,16 @@ git clone git@github.com:Nagaprasadvr/solana-pinocchio-starter.git
 
     - [utils.rs](src/state/utils.rs) - utils for state which provide serialization and deserialization helper fns( load_acc , load_mut_acc, etc)
 
-  - [tests](src/tests/) - all tests are defined here
-
-    - **Note:** we are using mollusk-svm - a lightweight solana testing framework for running tests in a local environment without the need of a full solana cluster
-    - [elfs](src/tests/elfs/) - compiled solana elfs can be added here and loaded to mollusk while testing
-    - [mod.rs](src/tests/mod.rs) - has the tests for the program but we can split the tests into multiple files
-
   - [error.rs](program/src/error.rs) - program errors are listed here
+
+- [tests](tests/) - all tests are defined here
+
+  - **Note:** we are using mollusk-svm - a lightweight solana testing framework for running tests in a local environment without the need of a full solana cluster
+  - [elfs](tests/elfs/) - compiled solana elfs can be added here and loaded to mollusk while testing
+  - [unit_tests.rs](tests/unit_tests.rs) - has the unit tests for the program
+
+- [benches](benches/) - all the benchmarks are defined here
+  - [compute_units.md](benches/compute_units.md) - compute unit benchmarks
 
 ### 3. Build program
 
@@ -50,8 +53,25 @@ solana address -k target/deploy/solana_pinocchio_starter-keypair.json
 ### 4. Running Tests
 
 ```bash
-cargo test
+cargo test --features test-default
 ```
+
+### 5. Running Benchmarks
+
+```bash
+cargo bench --features bench-default
+```
+
+#### Compute Unit Benchmarks
+
+#### 2025-04-07 06:27:51.301668567 UTC
+
+Solana CLI Version: solana-cli 2.1.18 (src:f91c2fca; feat:3271415109, client:Agave)
+
+| Name              | CUs  | Delta   |
+| ----------------- | ---- | ------- |
+| InitializeMyState | 3375 | - new - |
+| UpdateMyState     | 215  | - new - |
 
 ### 5. Client Generation
 

@@ -1,33 +1,27 @@
-use mollusk_svm::result::{Check, ProgramResult};
 use mollusk_svm::{program, Mollusk};
-use solana_sdk::account::Account;
-use solana_sdk::instruction::{AccountMeta, Instruction};
-use solana_sdk::native_token::LAMPORTS_PER_SOL;
+use mollusk_svm_bencher::MolluskComputeUnitBencher;
+use solana_pinocchio_starter::{
+    instruction::{InitializeMyStateIxData, UpdateMyStateIxData},
+    state::{to_bytes, DataLen, MyState, State},
+    ID,
+};
 use solana_sdk::pubkey;
-use solana_sdk::pubkey::Pubkey;
-extern crate alloc;
-use alloc::vec;
+use solana_sdk::{
+    account::Account,
+    instruction::{AccountMeta, Instruction},
+    native_token::LAMPORTS_PER_SOL,
+    pubkey::Pubkey,
+};
 
-use crate::instruction::{InitializeMyStateIxData, UpdateMyStateIxData};
-use crate::state::utils::to_bytes;
-use crate::state::{DataLen, MyState};
-
-pub const PROGRAM: Pubkey = Pubkey::new_from_array(crate::ID);
+pub const PROGRAM: Pubkey = Pubkey::new_from_array(ID);
 
 pub const RENT: Pubkey = pubkey!("SysvarRent111111111111111111111111111111111");
 
 pub const PAYER: Pubkey = pubkey!("41LzznNicELmc5iCR9Jxke62a3v1VhzpBYodQF5AQwHX");
 
-pub fn mollusk() -> Mollusk {
+fn main() {
     let mollusk = Mollusk::new(&PROGRAM, "target/deploy/solana_pinocchio_starter");
-    mollusk
-}
 
-#[test]
-fn test_initialize_mystate() {
-    let mollusk = mollusk();
-
-    //system program and system account
     let (system_program, system_account) = program::keyed_account_for_system_program();
 
     // Create the PDA
@@ -62,44 +56,23 @@ fn test_initialize_mystate() {
     ser_ix_data.extend_from_slice(to_bytes(&ix_data));
 
     // Create instruction
-    let instruction = Instruction::new_with_bytes(PROGRAM, &ser_ix_data, ix_accounts);
+    let instruction0 = Instruction::new_with_bytes(PROGRAM, &ser_ix_data, ix_accounts);
 
     // Create tx_accounts vec
-    let tx_accounts = &vec![
+    let tx_accounts0 = &vec![
         (PAYER, payer_account.clone()),
         (mystate_pda, mystate_account.clone()),
         (RENT, rent_account.clone()),
         (system_program, system_account.clone()),
     ];
 
-    let init_res =
-        mollusk.process_and_validate_instruction(&instruction, tx_accounts, &[Check::success()]);
-
-    assert!(init_res.program_result == ProgramResult::Success);
-}
-
-#[test]
-fn test_update_mystate() {
-    let mollusk = mollusk();
-
-    //system program and system account
-    let (system_program, _system_account) = program::keyed_account_for_system_program();
-
-    // Create the PDA
-    let (mystate_pda, _bump) =
-        Pubkey::find_program_address(&[MyState::SEED.as_bytes(), &PAYER.to_bytes()], &PROGRAM);
-
-    //Initialize the accounts
-    let payer_account = Account::new(1 * LAMPORTS_PER_SOL, 0, &system_program);
-
     let rent = mollusk.sysvars.rent.minimum_balance(MyState::LEN);
-
-    let mut mystate_account = Account::new(rent, MyState::LEN, &crate::ID.into());
+    let mut mystate_account = Account::new(rent, MyState::LEN, &ID.into());
 
     let my_state = MyState {
         is_initialized: true,
         owner: *PAYER.as_array(),
-        state: crate::state::State::Initialized,
+        state: State::Initialized,
         data: [1; 32],
         update_count: 0,
     };
@@ -122,15 +95,17 @@ fn test_update_mystate() {
     ser_ix_data.extend_from_slice(to_bytes(&ix_data));
 
     // Create instruction
-    let instruction = Instruction::new_with_bytes(PROGRAM, &ser_ix_data, ix_accounts);
+    let instruction1 = Instruction::new_with_bytes(PROGRAM, &ser_ix_data, ix_accounts);
     // Create tx_accounts vec
-    let tx_accounts = &vec![
+    let tx_accounts1 = &vec![
         (PAYER, payer_account.clone()),
         (mystate_pda, mystate_account.clone()),
     ];
 
-    let update_res =
-        mollusk.process_and_validate_instruction(&instruction, tx_accounts, &[Check::success()]);
-
-    assert!(update_res.program_result == ProgramResult::Success);
+    MolluskComputeUnitBencher::new(mollusk)
+        .bench(("InitializeMyState", &instruction0, tx_accounts0))
+        .bench(("UpdateMyState", &instruction1, tx_accounts1))
+        .must_pass(true)
+        .out_dir("benches/")
+        .execute();
 }

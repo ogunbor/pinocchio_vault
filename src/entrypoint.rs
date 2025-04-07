@@ -24,11 +24,11 @@ fn process_instruction(
 
     match MyProgramInstrution::try_from(ix_disc)? {
         MyProgramInstrution::InitializeState => {
-            log!("Instruction: InitializeState");
+            log!("Ix:0");
             instruction::process_initilaize_state(accounts, instruction_data)
         }
         MyProgramInstrution::UpdateState => {
-            log!("Instruction: UpdateState");
+            log!("Ix:1");
             instruction::process_update_state(accounts, instruction_data)
         }
     }
