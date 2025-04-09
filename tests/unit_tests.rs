@@ -11,6 +11,8 @@ use alloc::vec;
 use solana_pinocchio_starter::instruction::{InitializeMyStateIxData, UpdateMyStateIxData};
 use solana_pinocchio_starter::state::{to_bytes, DataLen, MyState, State};
 use solana_pinocchio_starter::ID;
+use solana_sdk::rent::Rent;
+use solana_sdk::sysvar::Sysvar;
 
 pub const PROGRAM: Pubkey = Pubkey::new_from_array(ID);
 
@@ -21,6 +23,13 @@ pub const PAYER: Pubkey = pubkey!("41LzznNicELmc5iCR9Jxke62a3v1VhzpBYodQF5AQwHX"
 pub fn mollusk() -> Mollusk {
     let mollusk = Mollusk::new(&PROGRAM, "target/deploy/solana_pinocchio_starter");
     mollusk
+}
+
+pub fn get_rent_data() -> Vec<u8> {
+    let rent = Rent::default();
+    unsafe {
+        core::slice::from_raw_parts(&rent as *const Rent as *const u8, Rent::size_of()).to_vec()
+    }
 }
 
 #[test]
@@ -37,8 +46,9 @@ fn test_initialize_mystate() {
     //Initialize the accounts
     let payer_account = Account::new(1 * LAMPORTS_PER_SOL, 0, &system_program);
     let mystate_account = Account::new(0, 0, &system_program);
-    let min_balance = mollusk.sysvars.rent.minimum_balance(0);
-    let rent_account = Account::new(min_balance, 0, &RENT);
+    let min_balance = mollusk.sysvars.rent.minimum_balance(Rent::size_of());
+    let mut rent_account = Account::new(min_balance, Rent::size_of(), &RENT);
+    rent_account.data = get_rent_data();
 
     //Push the accounts in to the instruction_accounts vec!
     let ix_accounts = vec![
