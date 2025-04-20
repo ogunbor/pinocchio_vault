@@ -53,7 +53,7 @@ fn main() {
     let mut ser_ix_data = vec![0];
 
     // Serialize the instruction data
-    ser_ix_data.extend_from_slice(to_bytes(&ix_data));
+    ser_ix_data.extend_from_slice(unsafe { to_bytes(&ix_data) });
 
     // Create instruction
     let instruction0 = Instruction::new_with_bytes(PROGRAM, &ser_ix_data, ix_accounts);
@@ -77,7 +77,7 @@ fn main() {
         update_count: 0,
     };
 
-    mystate_account.data = to_bytes(&my_state).to_vec();
+    mystate_account.data = unsafe { to_bytes(&my_state).to_vec() };
 
     //Push the accounts in to the instruction_accounts vec!
     let ix_accounts = vec![
@@ -92,7 +92,7 @@ fn main() {
     let mut ser_ix_data = vec![1];
 
     // Serialize the instruction data
-    ser_ix_data.extend_from_slice(to_bytes(&ix_data));
+    ser_ix_data.extend_from_slice(unsafe { to_bytes(&ix_data) });
 
     // Create instruction
     let instruction1 = Instruction::new_with_bytes(PROGRAM, &ser_ix_data, ix_accounts);
