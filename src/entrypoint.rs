@@ -10,6 +10,7 @@ program_entrypoint!(process_instruction);
 //Do not allocate memory.
 no_allocator!();
 // Use the no_std panic handler.
+#[cfg(target_os = "solana")]
 nostd_panic_handler!();
 
 #[inline(always)]

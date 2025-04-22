@@ -1,8 +1,10 @@
 use pinocchio::program_error::ProgramError;
 
+pub mod deposit;
 pub mod initialize_mystate;
 pub mod update_mystate;
 
+pub use deposit::*;
 pub use initialize_mystate::*;
 pub use update_mystate::*;
 

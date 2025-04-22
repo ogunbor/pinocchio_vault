@@ -44,7 +44,7 @@ pub fn process_initilaize_state(accounts: &[AccountInfo], data: &[u8]) -> Progra
 
     let rent = Rent::from_account_info(sysvar_rent_acc)?;
 
-    let ix_data = unsafe { load_ix_data::<InitializeMyStateIxData>(data)? };
+    let ix_data = { load_ix_data::<InitializeMyStateIxData>(data)? };
 
     if ix_data.owner.ne(payer_acc.key()) {
         return Err(MyProgramError::InvalidOwner.into());

@@ -33,7 +33,7 @@ pub fn process_update_state(accounts: &[AccountInfo], data: &[u8]) -> ProgramRes
         return Err(MyProgramError::InvalidOwner.into());
     }
 
-    let ix_data = unsafe { load_ix_data::<UpdateMyStateIxData>(data)? };
+    let ix_data = { load_ix_data::<UpdateMyStateIxData>(data)? };
 
     my_state.update(ix_data)?;
 
