@@ -3,10 +3,12 @@ use pinocchio::program_error::ProgramError;
 pub mod deposit;
 pub mod initialize_mystate;
 pub mod update_mystate;
+pub mod withdraw;
 
 pub use deposit::*;
 pub use initialize_mystate::*;
 pub use update_mystate::*;
+pub use withdraw::*;
 
 #[repr(u8)]
 pub enum MyProgramInstrution {

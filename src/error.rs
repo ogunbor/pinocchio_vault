@@ -10,6 +10,10 @@ pub enum MyProgramError {
     PdaMismatch,
     // Invalid Owner
     InvalidOwner,
+    // Not a system account
+    InvalidAccount,
+    //Incorect Vault
+    IncorrectVaultAcc,
 }
 
 impl From<MyProgramError> for ProgramError {
