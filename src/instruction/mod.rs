@@ -1,19 +1,15 @@
 use pinocchio::program_error::ProgramError;
 
 pub mod deposit;
-pub mod initialize_mystate;
-pub mod update_mystate;
 pub mod withdraw;
 
 pub use deposit::*;
-pub use initialize_mystate::*;
-pub use update_mystate::*;
 pub use withdraw::*;
 
 #[repr(u8)]
 pub enum MyProgramInstrution {
-    InitializeState,
-    UpdateState,
+    Deposit,
+    Withdraw,
 }
 
 impl TryFrom<&u8> for MyProgramInstrution {
@@ -21,8 +17,8 @@ impl TryFrom<&u8> for MyProgramInstrution {
 
     fn try_from(value: &u8) -> Result<Self, Self::Error> {
         match *value {
-            0 => Ok(MyProgramInstrution::InitializeState),
-            1 => Ok(MyProgramInstrution::UpdateState),
+            0 => Ok(MyProgramInstrution::Deposit),
+            1 => Ok(MyProgramInstrution::Withdraw),
             _ => Err(ProgramError::InvalidInstructionData),
         }
     }

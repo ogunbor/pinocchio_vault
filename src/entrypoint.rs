@@ -1,3 +1,4 @@
+#![allow(unexpected_cfgs)]
 use crate::instruction::{self, MyProgramInstrution};
 use pinocchio::{
     account_info::AccountInfo, no_allocator, nostd_panic_handler, program_entrypoint,
@@ -24,13 +25,13 @@ fn process_instruction(
         .ok_or(ProgramError::InvalidInstructionData)?;
 
     match MyProgramInstrution::try_from(ix_disc)? {
-        MyProgramInstrution::InitializeState => {
+        MyProgramInstrution::Deposit => {
             log!("Ix:0");
-            instruction::process_initilaize_state(accounts, instruction_data)
+            instruction::process_deposit(accounts, instruction_data)
         }
-        MyProgramInstrution::UpdateState => {
+        MyProgramInstrution::Withdraw => {
             log!("Ix:1");
-            instruction::process_update_state(accounts, instruction_data)
+            instruction::process_withdraw(accounts, instruction_data)
         }
     }
 }

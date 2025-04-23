@@ -8,68 +8,53 @@ use solana_sdk::pubkey::Pubkey;
 extern crate alloc;
 use alloc::vec;
 
-use solana_pinocchio_starter::instruction::{InitializeMyStateIxData, UpdateMyStateIxData};
-use solana_pinocchio_starter::state::{to_bytes, DataLen, MyState, State};
+use solana_pinocchio_starter::instruction::DepositIxData;
+use solana_pinocchio_starter::state::{to_bytes, DataLen};
 use solana_pinocchio_starter::ID;
-use solana_sdk::rent::Rent;
-use solana_sdk::sysvar::Sysvar;
 
 pub const PROGRAM: Pubkey = Pubkey::new_from_array(ID);
 
 pub const RENT: Pubkey = pubkey!("SysvarRent111111111111111111111111111111111");
 
-pub const PAYER: Pubkey = pubkey!("41LzznNicELmc5iCR9Jxke62a3v1VhzpBYodQF5AQwHX");
+pub const PAYER: Pubkey = pubkey!("6ByyRK74BMM6bsvgXb34MpKqx3LpAhiQBN8JgdMspMcB");
 
 pub fn mollusk() -> Mollusk {
     let mollusk = Mollusk::new(&PROGRAM, "target/deploy/solana_pinocchio_starter");
     mollusk
 }
 
-pub fn get_rent_data() -> Vec<u8> {
-    let rent = Rent::default();
-    unsafe {
-        core::slice::from_raw_parts(&rent as *const Rent as *const u8, Rent::size_of()).to_vec()
-    }
-}
-
 #[test]
-fn test_initialize_mystate() {
+fn test_deposit() {
     let mollusk = mollusk();
 
     //system program and system account
     let (system_program, system_account) = program::keyed_account_for_system_program();
 
     // Create the PDA
-    let (mystate_pda, bump) =
-        Pubkey::find_program_address(&[MyState::SEED.as_bytes(), &PAYER.to_bytes()], &PROGRAM);
+    let (vault_pda, bump) = Pubkey::find_program_address(
+        &["pinocchio_vault_pda".as_bytes(), &PAYER.to_bytes()],
+        &PROGRAM,
+    );
 
     //Initialize the accounts
-    let payer_account = Account::new(1 * LAMPORTS_PER_SOL, 0, &system_program);
-    let mystate_account = Account::new(0, 0, &system_program);
-    let min_balance = mollusk.sysvars.rent.minimum_balance(Rent::size_of());
-    let mut rent_account = Account::new(min_balance, Rent::size_of(), &RENT);
-    rent_account.data = get_rent_data();
+    let payer_account = Account::new(10 * LAMPORTS_PER_SOL, 0, &system_program);
+    let vault_account = Account::new(0, 0, &system_program);
 
     //Push the accounts in to the instruction_accounts vec!
     let ix_accounts = vec![
         AccountMeta::new(PAYER, true),
-        AccountMeta::new(mystate_pda, false),
-        AccountMeta::new_readonly(RENT, false),
+        AccountMeta::new(vault_pda, false),
         AccountMeta::new_readonly(system_program, false),
     ];
 
     // Create the instruction data
-    let ix_data = InitializeMyStateIxData {
-        owner: *PAYER.as_array(),
-        data: [1; 32],
-        bump,
-    };
+    let ix_data = DepositIxData { amount: 1, bump };
 
     // Ix discriminator = 0
     let mut ser_ix_data = vec![0];
 
     // Serialize the instruction data
-    ser_ix_data.extend_from_slice(unsafe { to_bytes(&ix_data) });
+    ser_ix_data.extend_from_slice(to_bytes(&ix_data));
 
     // Create instruction
     let instruction = Instruction::new_with_bytes(PROGRAM, &ser_ix_data, ix_accounts);
@@ -77,8 +62,7 @@ fn test_initialize_mystate() {
     // Create tx_accounts vec
     let tx_accounts = &vec![
         (PAYER, payer_account.clone()),
-        (mystate_pda, mystate_account.clone()),
-        (RENT, rent_account.clone()),
+        (vault_pda, vault_account.clone()),
         (system_program, system_account.clone()),
     ];
 
@@ -89,54 +73,42 @@ fn test_initialize_mystate() {
 }
 
 #[test]
-fn test_update_mystate() {
+fn test_withdraw() {
     let mollusk = mollusk();
 
     //system program and system account
-    let (system_program, _system_account) = program::keyed_account_for_system_program();
+    let (system_program, system_account) = program::keyed_account_for_system_program();
 
     // Create the PDA
-    let (mystate_pda, _bump) =
-        Pubkey::find_program_address(&[MyState::SEED.as_bytes(), &PAYER.to_bytes()], &PROGRAM);
+    let (vault_pda, bump) = Pubkey::find_program_address(
+        &["pinocchio_vault_pda".as_bytes(), &PAYER.to_bytes()],
+        &PROGRAM,
+    );
 
     //Initialize the accounts
-    let payer_account = Account::new(1 * LAMPORTS_PER_SOL, 0, &system_program);
-
-    let rent = mollusk.sysvars.rent.minimum_balance(MyState::LEN);
-
-    let mut mystate_account = Account::new(rent, MyState::LEN, &ID.into());
-
-    let my_state = MyState {
-        is_initialized: true,
-        owner: *PAYER.as_array(),
-        state: State::Initialized,
-        data: [1; 32],
-        update_count: 0,
-    };
-
-    mystate_account.data = unsafe { to_bytes(&my_state).to_vec() };
+    let payer_account = Account::new(9 * LAMPORTS_PER_SOL, 0, &system_program);
+    let vault_account = Account::new(1 * LAMPORTS_PER_SOL, 0, &system_program);
 
     //Push the accounts in to the instruction_accounts vec!
     let ix_accounts = vec![
         AccountMeta::new(PAYER, true),
-        AccountMeta::new(mystate_pda, false),
+        AccountMeta::new(vault_pda, false),
+        AccountMeta::new_readonly(system_program, false),
     ];
 
-    // Create the instruction data
-    let ix_data = UpdateMyStateIxData { data: [1; 32] };
-
     // Ix discriminator = 1
-    let mut ser_ix_data = vec![1];
+    let mut ix_data = vec![1];
 
     // Serialize the instruction data
-    ser_ix_data.extend_from_slice(unsafe { to_bytes(&ix_data) });
+    ix_data.push(bump);
 
     // Create instruction
-    let instruction = Instruction::new_with_bytes(PROGRAM, &ser_ix_data, ix_accounts);
+    let instruction = Instruction::new_with_bytes(PROGRAM, &ix_data, ix_accounts);
     // Create tx_accounts vec
     let tx_accounts = &vec![
         (PAYER, payer_account.clone()),
-        (mystate_pda, mystate_account.clone()),
+        (vault_pda, vault_account.clone()),
+        (system_program, system_account.clone()),
     ];
 
     let update_res =
